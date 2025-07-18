@@ -16,7 +16,7 @@ def call(Map args) {
         ${preBuild}
 
         echo "Building Docker image: ${fullImageName}"
-        docker build -f ${contextDir}/${dockerfile} -t ${fullImageName} .
+        docker build -f ${dockerfile} -t ${fullImageName} ${contextDir}
 
         echo "Tagging image for ECR: ${ecrImage}"
         docker tag ${fullImageName} ${ecrImage}
@@ -25,3 +25,4 @@ def call(Map args) {
         docker push ${ecrImage}
     """
 }
+//        //docker build -f ${contextDir}/${dockerfile} -t ${fullImageName} .
