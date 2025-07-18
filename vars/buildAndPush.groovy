@@ -1,14 +1,31 @@
-def call(Map args = [:]) {
+def call(Map args) {
+    def imageTag   = args.imageTag
+    def contextDir = args.contextDir ?: '.'
+    def imageName  = args.imageName
+    def dockerfile = args.dockerfile ?: 'Dockerfile'
+    def awsRegion  = args.awsRegion ?: 'eu-west-1'
+    def accountId  = args.accountId ?: '513296374752'
+    def preBuild   = args.preBuild ?: ''
+    def fullImageName = "${imageName}:${imageTag}"
+    def ecrImage = "${accountId}.dkr.ecr.${awsRegion}.amazonaws.com/${imageName}:${imageTag}"
 
-    def imageName   = args.get('imageName', 'default-app')
-    def imageTag    = args.get('imageTag', 'latest')
-    def registry    = args.get('registry', '513296374752.dkr.ecr.eu-west-1.amazonaws.com')
-    def repoPath    = args.get('repoPath', "trustd/app")
-    def imagePath   = "${registry}/${repoPath}/${imageName}:${imageTag}"
+    sh """
+        set +x
+        cd ${contextDir}
 
-    sh "docker build -t ${imagePath} ."
-    sh "docker push ${imagePath}"
+        echo "Running pre-build commands (if any)..."
+        ${preBuild}
 
-    echo "Pushed Docker image: ${imagePath}"
-    return imagePath
+        echo "Building Docker image: ${fullImageName}"
+        docker build -f ${dockerfile} -t ${fullImageName} .
+
+        echo "Tagging image for ECR: ${ecrImage}"
+        docker tag ${fullImageName} ${ecrImage}
+
+        echo "Logging in to AWS ECR"
+        aws ecr get-login-password --region ${awsRegion} | docker login --username AWS --password-stdin ${accountId}.dkr.ecr.${awsRegion}.amazonaws.com
+
+        echo "Pushing image to ECR: ${ecrImage}"
+        docker push ${ecrImage}
+    """
 }
