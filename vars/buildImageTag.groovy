@@ -11,5 +11,9 @@ def call() {
 
     def commitHash = sh(script: "git rev-parse HEAD | cut -c1-7", returnStdout: true).trim()
 
-    return "${tagDate}-${branchName}_${commitHash}"
+    def imageTag = "${tagDate}-${branchName}_${commitHash}"
+
+    echo "Generated Docker image tag: ${imageTag}"
+    
+    return imageTag
 }
