@@ -1,7 +1,7 @@
 def call() {
     def tagDate = sh(script: "git show -s --format=%ci | cut -d ':' -f1-2 | tr ' ' 'r' | tr -d - | tr -d :", returnStdout: true).trim()
 
-    def branchName = env.BRANCH_NAME
+    def branchName = env.BRANCH_NAME ?: sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
     if (branchName.contains('/')) {
         branchName = branchName.substring(branchName.indexOf('/') + 1)
     }
@@ -11,4 +11,3 @@ def call() {
 
     return "${tagDate}-${branchName}_${commitHash}"
 }
-
