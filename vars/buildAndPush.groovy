@@ -11,12 +11,13 @@ def call(Map args) {
 
     sh """
         set +x
+        cd ${contextDir}
 
         echo "Running pre-build commands (if any)..."
         ${preBuild}
 
         echo "Building Docker image: ${fullImageName}"
-        docker build -f ${contextDir}/${dockerfile} -t ${fullImageName} .
+        docker build -f ${dockerfile} -t ${fullImageName} .
         
 
         echo "Tagging image for ECR: ${ecrImage}"
