@@ -1,26 +1,15 @@
-#!/usr/bin/env groovy
-
 def call() {
+    def tagDate = sh(script: "git show -s --format=%ci | cut -d ':' -f1-2 | tr ' ' 'r' | tr -d - | tr -d :", returnStdout: true).trim()
 
-    def tagDate = sh(
-        script: "git show -s --format=%ci | cut -d ':' -f1-2 | tr ' ' 'T' | tr -d '-' | tr -d ':'", 
-        returnStdout: true
-    ).trim()
-    
-    def branchName = "unknown"
-    if (env.BRANCH_NAME) {
-
-        def parts = env.BRANCH_NAME.split('/')
-        branchName = parts[-1]  // Get last part after splitting
+    def branch = env.BRANCH_NAME
+    if (!branch || branch.trim() == '') {
+        branch = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
     }
-    branchName = branchName.replaceAll('/', '_').take(40)    
 
-    def commitHash = sh(
-        script: "git rev-parse HEAD | cut -c1-7", 
-        returnStdout: true
-    ).trim()
-    
-    def imageTag = "${tagDate}-${branchName}_${commitHash}"
-    
-    return imageTag
+    def branchName = branch.contains('/') ? branch.substring(branch.indexOf('/') + 1) : branch
+    branchName = branchName.replaceAll('/', '_').take(40)
+
+    def commitHash = sh(script: "git rev-parse HEAD | cut -c1-7", returnStdout: true).trim()
+
+    return "${tagDate}-${branchName}_${commitHash}"
 }
