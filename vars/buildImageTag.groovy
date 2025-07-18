@@ -3,7 +3,7 @@ def call() {
 
     def branchName = env.BRANCH_NAME.substring(env.BRANCH_NAME.indexOf('/') + 1).replaceAll('/', '_').take(40)
 
-    def ccommitHash = sh(script: "git rev-parse HEAD | cut -c1-7", returnStdout: true).trim()
+    def commitHash = sh(script: "git rev-parse HEAD | cut -c1-7", returnStdout: true).trim()
 
     return "${tagDate}-${branchName}_${commitHash}"
 }
