@@ -22,9 +22,6 @@ def call(Map args) {
         echo "Tagging image for ECR: ${ecrImage}"
         docker tag ${fullImageName} ${ecrImage}
 
-        // echo "Logging in to AWS ECR"
-        // aws ecr get-login-password --region ${awsRegion} | docker login --username AWS --password-stdin ${accountId}.dkr.ecr.${awsRegion}.amazonaws.com
-
         echo "Pushing image to ECR: ${ecrImage}"
         docker push ${ecrImage}
     """
