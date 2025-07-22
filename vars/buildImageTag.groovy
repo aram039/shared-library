@@ -1,7 +1,7 @@
 def call() {
     def tagDate = sh(script: "git show -s --format=%ci | cut -d ':' -f1-2 | tr ' ' 'r' | tr -d - | tr -d :", returnStdout: true).trim()
 
-    def branch = params.BRANCH ?: env.BRANCH_NAME // ?: env.BRANCH 
+    def branch = params.BRANCH ?: env.GIT_BRANCH 
     if (!branch || branch.trim() == '') {
         branch = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
     }
